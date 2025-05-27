@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的画作集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(8px);
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        select,
+        .view-toggle {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:hover,
+        .view-toggle:hover {
+            border-color: #3498db;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 5px;
+        }
+
+        .view-btn {
+            padding: 8px 12px;
+            border: none;
+            background: #ecf0f1;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .gallery.list-view {
+            grid-template-columns: 1fr;
+        }
+
+        .artwork {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .artwork:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .gallery.list-view .artwork {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .artwork-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery.list-view .artwork-image {
+            width: 200px;
+            height: 150px;
+            border-radius: 10px;
+            margin-right: 20px;
+        }
+
+        .artwork:hover .artwork-image {
+            transform: scale(1.05);
+        }
+
+        .artwork-info {
+            padding: 20px;
+        }
+
+        .gallery.list-view .artwork-info {
+            padding: 0;
+            flex: 1;
+        }
+
+        .artwork-title {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .artwork-category {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin-bottom: 10px;
+        }
+
+        .artwork-description {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .artwork-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 40px;
+            gap: 10px;
+        }
+
+        .pagination button {
+            padding: 12px 20px;
+            background: white;
+            color: #3498db;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #3498db;
+            color: white;
+        }
+
+        .pagination button:disabled {
+            background: #ecf0f1;
+            color: #bdc3c7;
+            border-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translate(-50%, -60%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(-50%, -50%);
+                opacity: 1;
+            }
+        }
+
+        .modal-image {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 10px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-info {
+            background: white;
+            padding: 30px;
+            margin-top: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+        }
+
+        .modal-title {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .modal-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.5);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #7f8c8d;
+        }
+
+        .loading::after {
+            content: '';
+            width: 40px;
+            height: 40px;
+            border: 4px solid #ecf0f1;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            color: #7f8c8d;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-container {
+                max-width: none;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .gallery {
+                grid-template-columns: 1fr;
+                grid-gap: 20px;
+            }
+
+            .gallery.list-view .artwork {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .gallery.list-view .artwork-image {
+                width: 100%;
+                height: 200px;
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>我的画作集</h1>
+            <p class="subtitle">记录创作的每一个瞬间</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-artworks">0</div>
+                    <div class="stat-label">总作品数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="total-categories">0</div>
+                    <div class="stat-label">分类数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="latest-year">2025</div>
+                    <div class="stat-label">最新作品</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="controls">
+            <div class="search-container">
+                <div class="search-icon">🔍</div>
+                <input type="text" class="search-box" placeholder="搜索画作标题或描述...">
+            </div>
+
+            <div class="filter-group">
+                <select class="category-filter">
+                    <option value="all">所有分类</option>
+                </select>
+
+                <select class="sort-select">
+                    <option value="date-desc">按日期 (最新)</option>
+                    <option value="date-asc">按日期 (最早)</option>
+                    <option value="title-asc">按标题 (A-Z)</option>
+                    <option value="title-desc">按标题 (Z-A)</option>
+                </select>
+
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="grid">⊞</button>
+                    <button class="view-btn" data-view="list">☰</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="gallery" id="gallery">
+            <div class="loading">正在加载画作...</div>
+        </div>
+
+        <div class="pagination">
+            <button id="prev-page" disabled>⟨ 上一页</button>
+            <div class="page-info" id="page-info">第 1 页，共 1 页</div>
+            <button id="next-page" disabled>下一页 ⟩</button>
+        </div>
+
+        <div class="modal" id="artwork-modal">
+            <span class="close-modal">&times;</span>
+            <div class="modal-content">
+                <img class="modal-image" id="modal-image" src="" alt="">
+                <div class="modal-info">
+                    <h3 class="modal-title" id="modal-title"></h3>
+                    <div class="modal-category" id="modal-category"></div>
+                    <p class="modal-description" id="modal-description"></p>
+                    <div class="artwork-meta">
+                        <span id="modal-date"></span>
+                        <a id="modal-flickr-link" href="#" target="_blank" style="color: #3498db;">在 Flickr 查看高清版</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 我的画作集. 用心记录每一份创作。</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                <a href="https://github.com" style="color: #3498db;">GitHub</a> +
+                <a href="https://flickr.com" style="color: #3498db;">Flickr</a>
+                强力驱动
+            </p>
+        </footer>
+    </div>
+
+    <!-- 引入画作数据 -->
+    <script src="artworks.js"></script>
+
+    <script>
+        // 全局变量
+        let currentPage = 1;
+        const itemsPerPage = 12;
+        let filteredArtworks = [];
+        let currentView = 'grid';
+
+        // DOM 元素
+        const galleryElement = document.getElementById('gallery');
+        const prevButton = document.getElementById('prev-page');
+        const nextButton = document.getElementById('next-page');
+        const pageInfo = document.getElementById('page-info');
+        const searchBox = document.querySelector('.search-box');
+        const categoryFilter = document.querySelector('.category-filter');
+        const sortSelect = document.querySelector('.sort-select');
+        const viewButtons = document.querySelectorAll('.view-btn');
+        const modal = document.getElementById('artwork-modal');
+        const modalImage = document.getElementById('modal-image');
+        const modalTitle = document.getElementById('modal-title');
+        const modalCategory = document.getElementById('modal-category');
+        const modalDescription = document.getElementById('modal-description');
+        const modalDate = document.getElementById('modal-date');
+        const modalFlickrLink = document.getElementById('modal-flickr-link');
+        const closeModal = document.querySelector('.close-modal');
+
+        // 初始化
+        function init() {
+            // 检查是否有数据
+            if (typeof artworksData === 'undefined') {
+                galleryElement.innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: #7f8c8d;">
+                        <h3>还没有添加任何作品</h3>
+                        <p>请先在 artworks.js 文件中添加你的画作数据</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredArtworks = [...artworksData];
+            updateStats();
+            loadCategories();
+            sortArtworks();
+            renderGallery();
+            updatePagination();
+
+            // 添加事件监听器
+            prevButton.addEventListener('click', goToPrevPage);
+            nextButton.addEventListener('click', goToNextPage);
+            searchBox.addEventListener('input', handleSearch);
+            categoryFilter.addEventListener('change', handleCategoryChange);
+            sortSelect.addEventListener('change', handleSort);
+
+            viewButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const view = e.target.dataset.view;
+                    switchView(view);
+                });
+            });
+
+            closeModal.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+
+            // 键盘导航
+            document.addEventListener('keydown', (e) => {
+                if (modal.style.display === 'block') {
+                    if (e.key === 'Escape') {
+                        modal.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            document.getElementById('total-artworks').textContent = artworksData.length;
+
+            const categories = [...new Set(artworksData.map(item => item.category))];
+            document.getElementById('total-categories').textContent = categories.length;
+
+            const latestYear = Math.max(...artworksData.map(item => new Date(item.date).getFullYear()));
+            document.getElementById('latest-year').textContent = latestYear;
+        }
+
+        // 加载分类选项
+        function loadCategories() {
+            const categories = [...new Set(artworksData.map(item => item.category))];
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilter.appendChild(option);
+            });
+        }
+
+        // 排序作品
+        function sortArtworks() {
+            const sortValue = sortSelect.value;
+
+            filteredArtworks.sort((a, b) => {
+                switch (sortValue) {
+                    case 'date-desc':
+                        return new Date(b.date) - new Date(a.date);
+                    case 'date-asc':
+                        return new Date(a.date) - new Date(b.date);
+                    case 'title-asc':
+                        return a.title.localeCompare(b.title);
+                    case 'title-desc':
+                        return b.title.localeCompare(a.title);
+                    default:
+                        return 0;
+                }
+            });
+        }
+
+        // 渲染画廊
+        function renderGallery() {
+            galleryElement.innerHTML = '';
+            galleryElement.className = `gallery ${currentView}-view`;
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageItems = filteredArtworks.slice(start, end);
+
+            if (pageItems.length === 0) {
+                galleryElement.innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: #7f8c8d; grid-column: 1 / -1;">
+                        <h3>没有找到匹配的作品</h3>
+                        <p>试试调整搜索条件或分类筛选</p>
+                    </div>
+                `;
+                return;
+            }
+
+            pageItems.forEach(artwork => {
+                const artworkElement = document.createElement('div');
+                artworkElement.className = 'artwork';
+
+                const truncatedDescription = artwork.description.length > 100
+                    ? artwork.description.substring(0, 100) + '...'
+                    : artwork.description;
+
+                artworkElement.innerHTML = `
+                    <img class="artwork-image" src="${artwork.image}" alt="${artwork.title}" loading="lazy">
+                    <div class="artwork-info">
+                        <div class="artwork-category">${artwork.category}</div>
+                        <h3 class="artwork-title">${artwork.title}</h3>
+                        <p class="artwork-description">${truncatedDescription}</p>
+                        <div class="artwork-meta">
+                            <span>📅 ${formatDate(artwork.date)}</span>
+                            <span>🔗 查看详情</span>
+                        </div>
+                    </div>
+                `;
+
+                artworkElement.addEventListener('click', () => {
+                    showModal(artwork);
+                });
+
+                galleryElement.appendChild(artworkElement);
+            });
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN');
+        }
+
+        // 更新分页
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredArtworks.length / itemsPerPage);
+            pageInfo.textContent = `第 ${currentPage} 页，共 ${totalPages} 页 (${filteredArtworks.length} 件作品)`;
+
+            prevButton.disabled = currentPage === 1;
+            nextButton.disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        // 分页导航
+        function goToPrevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderGallery();
+                updatePagination();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function goToNextPage() {
+            const totalPages = Math.ceil(filteredArtworks.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderGallery();
+                updatePagination();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // 搜索处理
+        function handleSearch() {
+            filterArtworks();
+        }
+
+        // 分类筛选
+        function handleCategoryChange() {
+            filterArtworks();
+        }
+
+        // 排序处理
+        function handleSort() {
+            sortArtworks();
+            currentPage = 1;
+            renderGallery();
+            updatePagination();
+        }
+
+        // 筛选作品
+        function filterArtworks() {
+            const searchTerm = searchBox.value.toLowerCase();
+            const selectedCategory = categoryFilter.value;
+
+            filteredArtworks = artworksData.filter(artwork => {
+                const matchesSearch = artwork.title.toLowerCase().includes(searchTerm) ||
+                    artwork.description.toLowerCase().includes(searchTerm);
+
+                const matchesCategory = selectedCategory === 'all' || artwork.category === selectedCategory;
+
+                return matchesSearch && matchesCategory;
+            });
+
+            sortArtworks();
+            currentPage = 1;
+            renderGallery();
+            updatePagination();
+        }
+
+        // 切换视图
+        function switchView(view) {
+            currentView = view;
+            viewButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+            renderGallery();
+        }
+
+        // 显示模态窗口
+        function showModal(artwork) {
+            modalImage.src = artwork.fullImage || artwork.image;
+            modalTitle.textContent = artwork.title;
+            modalCategory.textContent = artwork.category;
+            modalCategory.className = 'artwork-category';
+            modalDescription.textContent = artwork.description;
+            modalDate.textContent = `创作日期: ${formatDate(artwork.date)}`;
+
+            if (artwork.fullImage) {
+                modalFlickrLink.href = artwork.fullImage;
+                modalFlickrLink.style.display = 'inline';
+            } else {
+                modalFlickrLink.style.display = 'none';
+            }
+
+            modal.style.display = 'block';
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>
